@@ -78,7 +78,7 @@ const createCart = async function (req, res) {
 
             cartCreate['items'][0]['productId'] = product
 
-            res.status(201).send({ status: true, message: "success", data: cartCreate })
+            return res.status(201).send({ status: true, message: "Success", data: cartCreate })
         }
 
         if (!isValidObjectId(cartId)) {
@@ -132,7 +132,7 @@ const createCart = async function (req, res) {
 
                 const cartUpToDate = await cartModel.findOneAndUpdate({ _id: cartId }, updatedCartData, { new: true }).populate('items.productId', { _id: 1, title: 1, price: 1, productImage: 1 })
 
-                return res.status(201).send({ status: false, message: "success", data: cartUpToDate })
+                return res.status(201).send({ status: true, message: "Success", data: cartUpToDate })
             }
 
             const updatedCartData = {}
@@ -159,7 +159,7 @@ const createCart = async function (req, res) {
 
             const cartUpdate = await cartModel.findOneAndUpdate({ _id: cartId }, updatedCartData, { new: true }).populate('items.productId', { _id: 1, title: 1, price: 1, productImage: 1 })
 
-            return res.status(201).send({ status: false, message: "success", data: cartUpdate })
+            return res.status(201).send({ status: true, message: "Success", data: cartUpdate })
 
         }
 
@@ -179,7 +179,7 @@ const createCart = async function (req, res) {
 
         cartCreate['items'][0]['productId'] = product
 
-        res.status(201).send({ status: true, message: "success", data: cartCreate })
+        res.status(201).send({ status: true, message: "Success", data: cartCreate })
 
     } catch (error) {
         console.log(error)
@@ -203,7 +203,7 @@ const getCart = async function (req, res) {
 
         const cart = await cartModel.findOne({ userId: userId }).populate('items.productId', { _id: 1, title: 1, price: 1, productImage: 1 })
 
-        res.status(200).send({ status: true, message: "success", data: cart })
+        res.status(200).send({ status: true, message: "Success", data: cart })
     } catch (error) {
         console.log(error)
         res.status(500).send({ status: false, data: error });
@@ -306,7 +306,7 @@ const updateCart = async function (req, res) {
 
             const productRemovefromCart = await cartModel.findOneAndUpdate({ _id: cartId }, updatedProductRemoveData, { new: true }).populate('items.productId', { _id: 1, title: 1, price: 1, productImage: 1 })
 
-            return res.status(200).send({ status: false, message: "success", data: productRemovefromCart })
+            return res.status(200).send({ status: true, message: "Success", data: productRemovefromCart })
 
         }
 
@@ -336,7 +336,7 @@ const updateCart = async function (req, res) {
 
             const cartUpToDate = await cartModel.findOneAndUpdate({ _id: cartId }, updatedCartData, { new: true }).populate('items.productId', { _id: 1, title: 1, price: 1, productImage: 1 })
 
-            return res.status(200).send({ status: true, message: "success", data: cartUpToDate })
+            return res.status(200).send({ status: true, message: "Success", data: cartUpToDate })
 
         } else {
 
@@ -370,7 +370,7 @@ const updateCart = async function (req, res) {
 
             const cartUpToDate = await cartModel.findOneAndUpdate({ _id: cartId }, updatedCartData, { new: true }).populate('items.productId', { _id: 1, title: 1, price: 1, productImage: 1 })
 
-            return res.status(200).send({ status: true, message: "success", data: cartUpToDate })
+            return res.status(200).send({ status: true, message: "Success", data: cartUpToDate })
         }
     } catch (error) {
         console.log(error)
@@ -417,7 +417,7 @@ const deleteCart = async function (req, res) {
 
         const cart = await cartModel.findOneAndUpdate({ userId: userId }, updatedCartData, {new: true})
 
-        res.status(201).send({ status: true, message: "success", data: cart })
+        res.status(204).send({ status: true, message: "Success", data: cart })
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message });

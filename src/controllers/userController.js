@@ -138,14 +138,15 @@ const register = async function (req, res) {
             password: encryptedPassword,
             address: address
         }
-        const newUser = await UserModel.create(userData);       
+        let newUser = await UserModel.create(userData)
+        newUser = newUser.toObject();       
 
-        const strUser = JSON.stringify(newUser);
-        const objUser = JSON.parse(strUser)
+        //const strUser = JSON.stringify(newUser);
+        //const objUser = JSON.parse(strUser)
+        //removes the password
+        delete(newUser.password)
 
-        delete(objUser.password)
-
-        return res.status(201).send({ status: true, message: `User created successfully`, data: objUser });
+        return res.status(201).send({ status: true, message: `User created successfully`, data: newUser });
     } catch (error) {
         	console.log(`Error while registering the user is ${error.message}`)
 	    return res.status(500).send({ status: false, message: error.message });

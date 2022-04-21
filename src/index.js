@@ -18,6 +18,6 @@ mongoose.connect("mongodb+srv://user-open-to-all-trainees:AutogenerateSecurePass
     .then(() => console.log('mongodb running on 27017'))
     .catch(err => console.log(err))
 
-app.listen(process.env.PORT || 3002, function() {
-	console.log('Express app running on port ' + (process.env.PORT || 3002))
+app.listen(process.env.PORT || 3000, function() {
+	console.log('Express app running on port ' + (process.env.PORT || 3000))
 });

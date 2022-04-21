@@ -106,7 +106,7 @@ const createOrder = async function (req, res) {
 
         await cartModel.findOneAndUpdate({ userId: userId }, updatedCartData, {new: true})
 
-        res.status(201).send({ status: true, message: "success", data: order })
+        res.status(201).send({ status: true, message: "Success", data: order })
 
     } catch (error) {
         console.log(error)

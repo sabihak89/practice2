@@ -229,9 +229,9 @@ const getAllProducts = async function (req, res) {
             return res.status(404).send({ statuproductss: false, message: 'No Product found' })
         }
 
-        return res.status(200).send({ status: true, message: 'Product list', data: products })
+        return res.status(200).send({ status: true, message: 'Success', data: products })
     } catch (error) {
-        return res.status(500).json({ success: false, error: error.message });
+        return res.status(500).json({ status: false, error: error.message });
     }
 }
 
