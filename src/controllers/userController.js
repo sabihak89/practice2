@@ -14,36 +14,39 @@ const ObjectId = mongoose.Types.ObjectId
 const passMinLen = 8
 const passMaxLen = 15
 
+
 aws.config.update({
-    accessKeyId: "AKIAY3L35MCRRMC6253G",
-    secretAccessKey: "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",
-    region: "ap-south-1",
-})
+    accessKeyId: "AKIAY3L35MCRSNFP6KRR",
+    secretAccessKey: "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",
+    region: "ap-south-1"
+});
 
-const uploadFile = async function (file, name) {
-    return new Promise(function (resolve, reject) {
+let s3 = new aws.S3({ apiVersion: '2006-03-01' });
 
-        // Create S3 service object
-        const s3 = new aws.S3({ apiVersion: "2006-03-01" })
+const upload = async (file, fileName) => {
+    // TODO: to increase caching of static assets (add max-age and immutable, remove no-cache)
+    // TODO: consider using timestamps in all the file names to resolve fle replacement issue <Sabiha Khan>
+    try {
+        let uploadParams = {
+            "ACL": "public-read",
+            "ContentType": file.mimetype,
+            Bucket: process.env.AWS_BUCKET,
+            Key: file.folder + fileName,
+            Body: file.buffer
+        };
 
-        const uploadParams = {
-            ACL: "public-read", /// this file is accesible publically..permission
-            Bucket: "classroom-training-bucket", // HERE
-            Key: name + "/" + file.originalname, // HERE
-            Body: file.buffer,
-        }
-
-        s3.upload(uploadParams, function (err, data) {
-            if (err) {
-                return reject({ "error": err })
-            }
-            console.log(data)
-            console.log(`File uploaded successfully. ${data.Location}`)
-            return resolve(data.Location) //HERE 
+        return new Promise(function (resolve, reject) {
+            s3.upload(uploadParams, function (err, data) {
+                if (err !== null) {
+                    reject(err);
+                } else resolve(data);
+            });
         })
-    })
-}
+    } catch(error) {
+        throw new Error('error in uploadToS3')
+    }
 
+}
 const register = async function (req, res) {
     try {
         const requestBody = req.body;
@@ -126,14 +129,15 @@ const register = async function (req, res) {
             return res.status(400).send({status: false, message: 'Profile image is required'})
         }
         // Validation ends
-        const profileImage = await uploadFile(files[0], 'user')
+        files[0].folder = 'projectEval/'
+        const profileImage = await upload(files[0], 'user')
         const encryptedPassword = await bcrypt.hash(password, saltRounds);
 
         const userData = {
             fname: fname,
             lname: lname,
             email: email,
-            profileImage: profileImage,
+            profileImage: profileImage.Location,
             phone: phone,
             password: encryptedPassword,
             address: address
@@ -148,7 +152,7 @@ const register = async function (req, res) {
 
         return res.status(201).send({ status: true, message: `User created successfully`, data: newUser });
     } catch (error) {
-        	console.log(`Error while registering the user is ${error.message}`)
+        	console.log(`Error while registering the user is ${error}`)
 	    return res.status(500).send({ status: false, message: error.message });
     }
 }

@@ -20,35 +20,68 @@ const isValidObjectId = function (objectId) {
     return mongoose.Types.ObjectId.isValid(objectId)
 }
 
+// aws.config.update({
+//     accessKeyId: "AKIAY3L35MCRRMC6253G",
+//     secretAccessKey: "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",
+//     region: "ap-south-1",
+// })
+
+// let uploadFile = async (file) => {
+
+//     return new Promise(function (resolve, reject) {
+//         // Create S3 service object
+//         let s3 = new aws.S3({ apiVersion: "2006-03-01" });
+
+//         var uploadParams = {
+//             ACL: "public-read", /// this file is accesible publically..permission
+//             Bucket: "classroom-training-bucket", // HERE
+//             Key: "project-eval/Product/" + file.originalname, // HERE
+//             Body: file.buffer,
+//         };
+
+//         s3.upload(uploadParams, function (err, data) {
+//             if (err) {
+//                 return reject({ "error": err });
+//             }
+//             console.log(data)
+//             console.log(`File uploaded successfully. ${data.Location}`);
+//             return resolve(data.Location); //HERE 
+//         });
+//     });
+// };
+
 aws.config.update({
-    accessKeyId: "AKIAY3L35MCRRMC6253G",
-    secretAccessKey: "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",
-    region: "ap-south-1",
-})
+    accessKeyId: "AKIAY3L35MCRSNFP6KRR",
+    secretAccessKey: "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",
+    region: "ap-south-1"
+});
 
-let uploadFile = async (file) => {
+let s3 = new aws.S3({ apiVersion: '2006-03-01' });
 
-    return new Promise(function (resolve, reject) {
-        // Create S3 service object
-        let s3 = new aws.S3({ apiVersion: "2006-03-01" });
-
-        var uploadParams = {
-            ACL: "public-read", /// this file is accesible publically..permission
-            Bucket: "classroom-training-bucket", // HERE
-            Key: "Product/" + file.originalname, // HERE
-            Body: file.buffer,
+const upload = async (file, fileName) => {
+    // TODO: to increase caching of static assets (add max-age and immutable, remove no-cache)
+    // TODO: consider using timestamps in all the file names to resolve fle replacement issue <Sabiha Khan>
+    try {
+        let uploadParams = {
+            "ACL": "public-read",
+            "ContentType": file.mimetype,
+            Bucket: process.env.AWS_BUCKET,
+            Key: file.folder + fileName,
+            Body: file.buffer
         };
 
-        s3.upload(uploadParams, function (err, data) {
-            if (err) {
-                return reject({ "error": err });
-            }
-            console.log(data)
-            console.log(`File uploaded successfully. ${data.Location}`);
-            return resolve(data.Location); //HERE 
-        });
-    });
-};
+        return new Promise(function (resolve, reject) {
+            s3.upload(uploadParams, function (err, data) {
+                if (err !== null) {
+                    reject(err);
+                } else resolve(data);
+            });
+        })
+    } catch(error) {
+        throw new Error('error in uploadToS3')
+    }
+
+}
 
 const createProduct = async function (req, res) {
     try {
@@ -115,7 +148,8 @@ const createProduct = async function (req, res) {
         }
 
         //upload to s3 and return true..incase of error in uploading this will goto catch block( as rejected promise)
-        downloadUrl = await uploadFile(productImage[0]); // expect this function to take file as input and give url of uploaded file as output 
+        productImage[0].folder = 'projectEval/'
+        downloadUrl = await upload(productImage[0], "product"); // expect this function to take file as input and give url of uploaded file as output 
         //   res.status(201).send({ status: true, data: uploadedFileURL });
         console.log("urllllll", downloadUrl)
 
@@ -129,7 +163,7 @@ const createProduct = async function (req, res) {
             isFreeShipping,
             style,
             installments,
-            productImage: downloadUrl
+            productImage: downloadUrl.Location
         }
 
         if(!isValid(availableSizes)) {
