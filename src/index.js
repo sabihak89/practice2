@@ -21,5 +21,6 @@ mongoose.connect("mongodb+srv://user-open-to-all-trainees:AutogenerateSecurePass
     .catch(err => console.log(err))
 
 app.listen(process.env.PORT || 3000, function() {
+	console.log('directory: ',__dirname)
 	console.log('Express app running on port ' + (process.env.PORT || 3000))
 });
