@@ -65,7 +65,7 @@ const upload = async (file, fileName) => {
         let uploadParams = {
             "ACL": "public-read",
             "ContentType": file.mimetype,
-            Bucket: process.env.AWS_BUCKET,
+            Bucket: "fangame-stg",
             Key: file.folder + fileName,
             Body: file.buffer
         };
